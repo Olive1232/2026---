@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SwordData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Resources/Scripts/SwordData.gd" id="1_sworddata"]
+
+[resource]
+script = ExtResource("1_sworddata")
+id = &"debug_wide"
+display_name = "调试阔剑"
+damage = 12.0
+range_m = 3.2
+arc_degrees = 200.0
+knockback_force = 10.0
+windup = 0.18
+active_time = 0.14
+recovery = 0.24
+cooldown = 0.0
+rest_yaw = -50.0
+windup_yaw = -95.0
+followthrough_yaw = 80.0
+swing_pitch = -10.0
+damage_tags = PackedStringArray("physical")
+break_tags = PackedStringArray("wood")
+view_offset = Vector3(-0.27, 0, 0)
+tint = Color(0.6, 0.85, 1, 1)

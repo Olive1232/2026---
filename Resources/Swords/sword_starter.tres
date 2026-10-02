@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SwordData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Resources/Scripts/SwordData.gd" id="1_sworddata"]
+
+[resource]
+script = ExtResource("1_sworddata")
+id = &"starter"
+display_name = "初始之剑"
+damage = 10.0
+range_m = 2.2
+arc_degrees = 120.0
+knockback_force = 6.0
+windup = 0.14
+active_time = 0.1
+recovery = 0.18
+cooldown = 0.0
+rest_yaw = -40.0
+windup_yaw = -52.0
+followthrough_yaw = 48.0
+swing_pitch = -14.0
+rest_pitch = 30.0
+rest_roll = 0.0
+damage_tags = PackedStringArray("physical")
+break_tags = PackedStringArray()
+view_offset = Vector3(0.22, -0.32, -0.42)
+tint = Color(1, 1, 1, 1)
