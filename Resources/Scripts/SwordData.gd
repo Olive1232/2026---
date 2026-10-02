@@ -20,8 +20,10 @@ signal view_changed
 @export_group("数值")
 ## 单次挥击伤害。
 @export var damage: float = 10.0
-## 有效距离（米）—— 伤害区域从相机往前伸多远。
-@export var range_m: float = 2.2
+## 有效距离（米）—— 伤害区域从握把往前伸多远。
+## 必须够长以覆盖视觉剑身，否则会出现"剑尖看得见却砍不到"。
+## 当前剑身长 1.8 米、剑尖到 z=-2.0，所以取 3.0 留出余量。
+@export var range_m: float = 3.0
 ## 挥砍扇形角度（度）。横扫一次扫过的水平角度，360 表示转一圈。
 @export_range(1.0, 360.0) var arc_degrees: float = 120.0
 ## 击退力度。

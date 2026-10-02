@@ -1,19 +1,31 @@
 extends Node3D
 
-## 测试场地控制器。只服务于"M2 剑"的验证，不是正式关卡。
+## 测试场地控制器。验证剑 / 钱包 / 怪物 / 尸体拖拽，不是正式关卡。
 ##
 ## 快捷键：
 ##   R  重新加载场地
-##   T  在准星方向生成一个新靶子
+##   T  生成假人靶子（静止，测剑）
 ##   F1 切换调试信息
+##   1  加 5 元          2  尝试花 3 元
+##   3  加 100 元        4  钱包清零
+##   5  生成蟑螂          6  生成老鼠
 
 const DUMMY_SCENE := preload("res://Scenes/Debug/TargetDummy.tscn")
+const MONSTER_SCENE := preload("res://Scenes/Enemies/Monster.tscn")
+const COCKROACH_DATA := preload("res://Resources/Enemies/monster_cockroach.tres")
+const RAT_DATA := preload("res://Resources/Enemies/monster_rat.tres")
 
 ## 生成新靶子时距玩家的距离。
 @export var spawn_distance: float = 6.0
+## 生成怪物时距玩家的距离（比靶子近一点，方便马上试抓取）。
+@export var monster_spawn_distance: float = 3.5
 
 var _spawn_count: int = 0
+var _monster_count: int = 0
+## 左上角调试信息文本。
 var _label: Label
+## 最近一次操作的结果，显示在调试信息里。
+var _last_action: String = "（无）"
 
 
 func _ready() -> void:
@@ -33,6 +45,26 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_F1:
 				if _label:
 					_label.visible = not _label.visible
+			KEY_1:
+				Wallet.add(5)
+				_last_action = "加 5 元"
+				_update_label()
+			KEY_2:
+				var ok := Wallet.spend(3)
+				_last_action = "花 3 元 → %s" % ("成功" if ok else "钱不够，未扣款")
+				_update_label()
+			KEY_3:
+				Wallet.add(100)
+				_last_action = "加 100 元"
+				_update_label()
+			KEY_4:
+				Wallet.reset()
+				_last_action = "钱包清零"
+				_update_label()
+			KEY_5:
+				_spawn_monster_ahead(COCKROACH_DATA)
+			KEY_6:
+				_spawn_monster_ahead(RAT_DATA)
 
 
 func _spawn_dummy_ahead() -> void:
@@ -57,7 +89,29 @@ func _find_player() -> Node3D:
 	return null
 
 
+## 在玩家前方生成一只怪物。
+func _spawn_monster_ahead(data: MonsterData) -> void:
+	var player := _find_player()
+	if player == null:
+		return
+	var monster := MONSTER_SCENE.instantiate() as Monster
+	if monster == null:
+		return
+	monster.data = data
+	var forward := -player.global_transform.basis.z
+	forward.y = 0.0
+	forward = forward.normalized()
+	add_child(monster)
+	monster.global_position = player.global_position + forward * monster_spawn_distance
+	# 生成点贴地，避免从半空落下。
+	monster.global_position.y = 0.05
+	_monster_count += 1
+	_last_action = "生成 %s" % data.display_name
+	EventBus.enemy_spawned.emit(monster)
+	_update_label()
+
+
 func _update_label() -> void:
 	if _label == null:
 		return
-	_label.text = "测试场地（M2 剑）\nR 重载   T 生成靶子   F1 隐藏本提示\n左键挥砍 · WASD 移动 · 空格跳跃 · Esc 释放鼠标\n已生成靶子：%d" % _spawn_count
+	_label.text = "测试场地（剑 + 钱包 + 怪物/尸体）\nR 重载   T 生成靶子   F1 隐藏本提示\n左键挥砍 · 右键抓取/放下 · WASD 移动 · 空格跳跃 · Esc 释放鼠标\n已生成靶子：%d   已生成怪物：%d\n钱包调试：[1] +5  [2] 花3  [3] +100  [4] 清零\n怪物调试：[5] 蟑螂  [6] 老鼠\n上次操作：%s" % [_spawn_count, _monster_count, _last_action]

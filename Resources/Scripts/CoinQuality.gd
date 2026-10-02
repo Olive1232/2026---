@@ -21,3 +21,14 @@ extends Resource
 @export_range(0, 2) var visual_tier: int = 0
 ## 拾取音效（留空表示沿用默认）。
 @export var pickup_sound: AudioStream = null
+
+
+## 造一份品质数据。用于代码生成默认档次（策划尚未给 .tres 时占位）。
+static func make(p_id: StringName, p_name: String, p_value: int, p_color: Color, p_tier: int) -> CoinQuality:
+	var q := CoinQuality.new()
+	q.id = p_id
+	q.display_name = p_name
+	q.value = p_value
+	q.color = p_color
+	q.visual_tier = p_tier
+	return q
