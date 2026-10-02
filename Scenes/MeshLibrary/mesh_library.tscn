@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://dp3x3mvc66a7e"]
+
+[ext_resource type="Texture2D" uid="uid://dfmm58v2htk7c" path="res://Assets/TileTexture/Temp/world_tileset_slices/world_tileset_1.png" id="1_dgryk"]
+[ext_resource type="Texture2D" uid="uid://b0a0i7jwph77d" path="res://Assets/TileTexture/Temp/world_tileset_slices/world_tileset_24.png" id="2_1dqqs"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x60wa"]
+albedo_texture = ExtResource("1_dgryk")
+uv1_scale = Vector3(3, 2, 1)
+texture_filter = 0
+
+[sub_resource type="BoxMesh" id="BoxMesh_dcxud"]
+material = SubResource("StandardMaterial3D_x60wa")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mb1uh"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1dqqs"]
+albedo_texture = ExtResource("2_1dqqs")
+uv1_scale = Vector3(3, 2, 1)
+texture_filter = 0
+
+[sub_resource type="BoxMesh" id="BoxMesh_2mctw"]
+material = SubResource("StandardMaterial3D_1dqqs")
+
+[node name="MeshLibrary" type="Node3D" unique_id=233961068]
+
+[node name="Ground" type="MeshInstance3D" parent="." unique_id=782533223]
+mesh = SubResource("BoxMesh_dcxud")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground" unique_id=397255548]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D" unique_id=1067602940]
+shape = SubResource("BoxShape3D_mb1uh")
+
+[node name="Wall" type="MeshInstance3D" parent="." unique_id=160219806]
+mesh = SubResource("BoxMesh_2mctw")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Wall" unique_id=361694193]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Wall/StaticBody3D" unique_id=812256454]
+shape = SubResource("BoxShape3D_mb1uh")
