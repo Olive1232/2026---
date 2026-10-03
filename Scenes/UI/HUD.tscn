@@ -1,8 +1,11 @@
 [gd_scene format=3 uid="uid://chud00000001"]
 
 [ext_resource type="PackedScene" uid="uid://cmoneyui00001" path="res://Scenes/UI/MoneyUI.tscn" id="1_moneyui"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/Crosshair.tscn" id="2_qc5w2"]
 
-[node name="HUD" type="CanvasLayer"]
+[node name="HUD" type="CanvasLayer" unique_id=1745317763]
 
-[node name="MoneyUI" parent="." instance=ExtResource("1_moneyui")]
-visible = true
+[node name="MoneyUI" parent="." unique_id=1596985248 instance=ExtResource("1_moneyui")]
+
+[node name="Crosshair" parent="." unique_id=1153134263 instance=ExtResource("2_qc5w2")]
+layout_mode = 3

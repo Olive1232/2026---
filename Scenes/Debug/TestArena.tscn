@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://da4pfytwxfqlk" path="res://Scenes/Debug/TargetDummy.tscn" id="3_dummy"]
 [ext_resource type="PackedScene" uid="uid://cmoneyui00001" path="res://Scenes/UI/MoneyUI.tscn" id="4_moneyui"]
 [ext_resource type="PackedScene" uid="uid://chole00000001" path="res://Scenes/Hole/Hole.tscn" id="5_hole"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/Crosshair.tscn" id="6_7usnj"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_iass2"]
 size = Vector3(19.4, 1, 19.4)
@@ -149,3 +150,6 @@ offset_right = 640.0
 offset_bottom = 140.0
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
+
+[node name="Crosshair" parent="HUD" unique_id=1445804874 instance=ExtResource("6_7usnj")]
+layout_mode = 3
