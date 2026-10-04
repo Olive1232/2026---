@@ -197,9 +197,7 @@ func _apply_weight() -> void:
 ## 采样间距取得比半径小（0.32 < 0.35），保证相邻两个球**必然重叠**，
 ## 物体不可能从采样之间漏掉。
 ##
-## 注意：`intersect_shape` 的结果**不保证有序**，理论上"更近但被挡住的东西"
-## 可能排在后面。当前关卡里没有遮挡抓取的几何体，所以不额外处理；
-## 若将来出现（例如玻璃后隔着尸体），需要改成按距离排序再取最近。
+## 采样点从近到远推进；每个候选物还会做地形遮挡检查，避免隔墙抓取。
 func _raycast_target() -> Node3D:
 	# 起点与方向**分开取**：起点可以是屏幕中心或持有点，方向永远沿视线。
 	# 手部调整（2026-10-03）后这两者不再重合，见 ray_from_screen_center。
@@ -234,7 +232,8 @@ func _raycast_target() -> Node3D:
 		var hit := space.intersect_ray(ray)
 		if hit.is_empty():
 			return null
-		return hit.get("collider") as Node3D
+		var target := hit.get("collider") as Node3D
+		return target if _clear_grab_path(target) else null
 
 	_pad_shape.radius = grab_padding
 	# 采样点数 = ceil(射程 / 间距) + 1；间距 = 半径 × 0.92，保证相邻球重叠。
@@ -247,6 +246,16 @@ func _raycast_target() -> Node3D:
 		var hits: Array = space.intersect_shape(query, 4)
 		for h in hits:
 			var collider: Variant = (h as Dictionary).get("collider")
-			if collider is Node3D:
+			if collider is Node3D and _clear_grab_path(collider):
 				return collider as Node3D
 	return null
+
+
+## 房间墙体 / 未烧完的藤蔓遮挡搬运，不能隔墙抓尸体。
+func _clear_grab_path(target: Node3D) -> bool:
+	if target == null:
+		return false
+	var ray := PhysicsRayQueryParameters3D.create(_ray_origin, target.global_position, CollisionLayers.WORLD)
+	if _player is PhysicsBody3D:
+		ray.exclude = [_player.get_rid()]
+	return get_world_3d().direct_space_state.intersect_ray(ray).is_empty()

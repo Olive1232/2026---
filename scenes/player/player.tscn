@@ -3,6 +3,10 @@
 [ext_resource type="Script" uid="uid://cmwcekupfobxd" path="res://scripts/player/player.gd" id="1_s0eop"]
 [ext_resource type="Script" uid="uid://biql2e566gdbh" path="res://scripts/weapons/sword.gd" id="2_sword"]
 [ext_resource type="Script" uid="uid://wdn5mc6idjps" path="res://scripts/interact/grabber.gd" id="3_h54ih"]
+[ext_resource type="Script" path="res://scripts/elements/element_component.gd" id="4_element"]
+
+[sub_resource type="BoxShape3D" id="Blade_contact"]
+size = Vector3(0.2, 0.3, 1.8)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_hit"]
 size = Vector3(1.4, 1, 2.4)
@@ -67,6 +71,18 @@ surface_material_override/0 = SubResource("Mat_blade")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.2)
 mesh = SubResource("BoxMesh_guard")
 surface_material_override/0 = SubResource("Mat_guard")
+
+[node name="ElementComponent" type="Area3D" parent="Camera3D/WeaponRig/WeaponPivot/Mount/Pivot"]
+position = Vector3(0, 0, -1.1)
+collision_layer = 32
+collision_mask = 32
+script = ExtResource("4_element")
+tags = PackedStringArray("indestructible")
+burn_duration = 0.0
+flame_scale = 0.5
+
+[node name="Shape" type="CollisionShape3D" parent="Camera3D/WeaponRig/WeaponPivot/Mount/Pivot/ElementComponent"]
+shape = SubResource("Blade_contact")
 
 [node name="Grabber" type="Node3D" parent="Camera3D" unique_id=2022178397]
 script = ExtResource("3_h54ih")

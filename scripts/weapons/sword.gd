@@ -39,6 +39,14 @@ var _in_hitstop: bool = false
 ## 一次挥砍中是否已经产生过命中（用于判断"砍空了"）。
 var _connected: bool = false
 
+signal element_state_changed
+const FIRE_SWINGS := 5
+var oiled := false
+var fire_swings_remaining := 0
+var _fire_counted_this_swing := false
+var _base_material: Material
+@onready var element: ElementComponent = $Pivot/ElementComponent
+
 # 动画分两个节点，避免 yaw 与 pitch 互相覆盖：
 #   _yaw_node （子节点 Pivot） 负责水平横扫
 #   self                       负责俯仰（rotation.x）与自转（rotation.z）
@@ -66,6 +74,9 @@ func _ready() -> void:
 	# 立刻套用静止姿态。否则要等第一次 _process 才摆正，
 	# 编辑器里预览时会看到场景文件里那个过时的角度。
 	_drive_animation(0.0)
+	_base_material = _mesh.material_override
+	element.ignited.connect(_on_ignited)
+	element.extinguished.connect(_on_extinguished)
 
 
 ## 没配 SwordData 时兜底生成一份，避免整把剑变成哑巴。
@@ -90,8 +101,16 @@ func set_sword_data(new_data: SwordData) -> void:
 	if data != null and data.view_changed.is_connected(_on_data_view_changed):
 		data.view_changed.disconnect(_on_data_view_changed)
 	data = new_data
+	# 换剑重置本把剑的临时状态，不污染共享资源。
+	element.extinguish()
+	oiled = false
+	element.tags = PackedStringArray(["indestructible"])
+	fire_swings_remaining = 0
 	_ensure_data()
+	_mesh.material_override = null
 	_apply_data()
+	_base_material = _mesh.material_override
+	element_state_changed.emit()
 
 
 func _apply_data() -> void:
@@ -120,11 +139,11 @@ func _apply_view_offset() -> void:
 func _setup_hitbox() -> void:
 	if _hitbox == null:
 		return
-	# 伤害区域属于 WEAPON 层，但自己不主动监听任何人——
+	# 伤害区域属于 WEAPON 层，开窗时监听敌人和静态障碍；
 	# 命中判定由下面的 _poll_hits() 主动轮询完成。
 	# 注意：Area3D 没有 max_contacts_reported（那是 RigidBody 的属性）。
 	_hitbox.collision_layer = CollisionLayers.WEAPON
-	_hitbox.collision_mask = CollisionLayers.ENEMY
+	_hitbox.collision_mask = CollisionLayers.ENEMY | CollisionLayers.WORLD
 	_hitbox.monitoring = false
 	_hitbox.monitorable = false
 
@@ -178,6 +197,8 @@ func _tick(delta: float) -> void:
 			if _t >= data.recovery:
 				_state = State.IDLE
 				_t = 0.0
+				if element.burning and fire_swings_remaining == 0:
+					element.extinguish()
 				_drive_animation(0.0)
 
 
@@ -197,6 +218,8 @@ func try_swing() -> bool:
 	_connected = false
 	_state = State.WINDUP
 	_t = 0.0
+	_fire_counted_this_swing = false
+	_count_fire_swing()
 	return true
 
 
@@ -291,6 +314,8 @@ func _poll_hits() -> void:
 			continue
 		if not body.has_method("take_hit"):
 			continue
+		if not _clear_hit_path(body):
+			continue
 		_hit_this_swing[body] = true
 		_connected = true
 		_deliver_hit(body)
@@ -300,13 +325,26 @@ func _deliver_hit(body: Node3D) -> void:
 	var info := HitInfo.new()
 	info.damage = data.damage
 	info.source = _owner_of_swing()
-	info.tags = data.damage_tags
+	info.tags = get_damage_tags()
 	info.hit_position = _hit_position_towards(body)
 	info.knockback = _knockback_towards(body)
 
 	body.take_hit(info)
 	_spawn_sparks(info.hit_position)
 	_apply_hitstop()
+
+
+## 房间出现墙体后，命中与抓取都需要遵守遮挡。
+func _clear_hit_path(body: Node3D) -> bool:
+	var ray := PhysicsRayQueryParameters3D.create(_hit_anchor.global_position, _hit_position_towards(body), CollisionLayers.WORLD)
+	var excluded: Array[RID] = []
+	var carrier := _owner_of_swing()
+	if carrier is PhysicsBody3D:
+		excluded.append(carrier.get_rid())
+	if body is PhysicsBody3D:
+		excluded.append(body.get_rid())
+	ray.exclude = excluded
+	return get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
 
 
 ## 找出挥剑的人（沿父链往上找带 set_carry_weight 的节点，通常是 Player）。
@@ -403,3 +441,50 @@ func is_swinging() -> bool:
 
 func get_state_name() -> String:
 	return State.keys()[_state]
+
+
+## 只赋予可点燃状态；重复涂油不直接点火，也不补充燃烧次数。
+func apply_oil() -> void:
+	oiled = true
+	if not element.tags.has("flammable"):
+		element.tags.append("flammable")
+	if not element.tags.has("oil"):
+		element.tags.append("oil")
+	element_state_changed.emit()
+
+
+func is_burning() -> bool:
+	return element.burning
+
+
+func get_damage_tags() -> PackedStringArray:
+	var result := data.damage_tags.duplicate()
+	if is_burning() and not result.has("fire"):
+		result.append("fire")
+	return result
+
+
+func _on_ignited() -> void:
+	fire_swings_remaining = FIRE_SWINGS
+	_count_fire_swing()
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(1.0, 0.55, 0.12)
+	material.emission_enabled = true
+	material.emission = Color(1.0, 0.24, 0.02)
+	material.emission_energy_multiplier = 1.8
+	_mesh.material_override = material
+	element_state_changed.emit()
+
+
+func _count_fire_swing() -> void:
+	if not is_burning() or _state == State.IDLE or _fire_counted_this_swing:
+		return
+	_fire_counted_this_swing = true
+	fire_swings_remaining = maxi(0, fire_swings_remaining - 1)
+	element_state_changed.emit()
+
+
+func _on_extinguished() -> void:
+	fire_swings_remaining = 0
+	_mesh.material_override = _base_material
+	element_state_changed.emit()
