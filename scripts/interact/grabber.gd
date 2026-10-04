@@ -58,6 +58,7 @@ var _current: Node3D = null
 var _hold_point: Node3D = null
 var _player: Node3D = null
 var _camera: Camera3D = null
+var interaction_locked := false
 
 
 func _ready() -> void:
@@ -134,7 +135,7 @@ func _on_held_tree_exiting() -> void:
 
 ## 尝试抓起准星指向的东西。返回是否成功。
 func try_grab() -> bool:
-	if is_holding():
+	if interaction_locked or is_holding():
 		return false
 	var target := _raycast_target()
 	if target == null:
@@ -153,7 +154,10 @@ func try_grab() -> bool:
 
 ## 放下当前持有的东西。throw_forward = true 会向前抛。
 func drop(throw_forward: bool = false) -> void:
-	if _current == null:
+	if interaction_locked or _current == null:
+		return
+	if not throw_forward and _current.has_method("try_place_on_counter") and _current.try_place_on_counter(_camera):
+		_clear_current()
 		return
 	if _current.has_method("release"):
 		_current.release(throw_forward)

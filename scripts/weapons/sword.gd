@@ -45,6 +45,7 @@ var oiled := false
 var fire_swings_remaining := 0
 var _fire_counted_this_swing := false
 var _base_material: Material
+var interaction_locked := false
 @onready var element: ElementComponent = $Pivot/ElementComponent
 
 # 动画分两个节点，避免 yaw 与 pitch 互相覆盖：
@@ -77,6 +78,7 @@ func _ready() -> void:
 	_base_material = _mesh.material_override
 	element.ignited.connect(_on_ignited)
 	element.extinguished.connect(_on_extinguished)
+	_apply_upgrade_tags()
 
 
 ## 没配 SwordData 时兜底生成一份，避免整把剑变成哑巴。
@@ -110,6 +112,7 @@ func set_sword_data(new_data: SwordData) -> void:
 	_mesh.material_override = null
 	_apply_data()
 	_base_material = _mesh.material_override
+	_apply_upgrade_tags()
 	element_state_changed.emit()
 
 
@@ -212,7 +215,7 @@ func _phase_ratio(elapsed: float, duration: float) -> float:
 
 ## 尝试挥砍。返回是否真的挥出去了（冷却中或已在挥砍中会返回 false）。
 func try_swing() -> bool:
-	if data == null or _state != State.IDLE:
+	if interaction_locked or data == null or _state != State.IDLE:
 		return false
 	_hit_this_swing.clear()
 	_connected = false
@@ -319,6 +322,8 @@ func _poll_hits() -> void:
 		_hit_this_swing[body] = true
 		_connected = true
 		_deliver_hit(body)
+		if interaction_locked:
+			break
 
 
 func _deliver_hit(body: Node3D) -> void:
@@ -451,6 +456,31 @@ func apply_oil() -> void:
 	if not element.tags.has("oil"):
 		element.tags.append("oil")
 	element_state_changed.emit()
+
+
+func _apply_upgrade_tags() -> void:
+	if data.upgrade_tags.has("oil"):
+		apply_oil()
+
+
+## 强化时收起剑，伤害与火焰接触暂停，避免隐藏剑仍产生交互。
+func set_forge_locked(value: bool) -> void:
+	interaction_locked = value
+	visible = not value
+	if not is_instance_valid(element) or not element.is_inside_tree():
+		return
+	if value:
+		_state = State.IDLE
+		_t = 0.0
+		_close_hitbox()
+		element.extinguish()
+		element.set_physics_process(false)
+		element.set_deferred("monitorable", false)
+		element.set_deferred("monitoring", false)
+	else:
+		element.set_physics_process(true)
+		element.set_deferred("monitorable", true)
+		element.set_deferred("monitoring", true)
 
 
 func is_burning() -> bool:

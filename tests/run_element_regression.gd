@@ -210,7 +210,7 @@ func _test_spread() -> void:
 
 
 func _test_room() -> void:
-	var room = load("res://scenes/rooms/element_test_room.tscn").instantiate()
+	var room = load("res://scenes/debug/element_lab.tscn").instantiate()
 	root.add_child(room)
 	current_scene = room
 	await _frames()

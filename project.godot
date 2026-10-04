@@ -18,12 +18,12 @@ config/icon="res://icon.svg"
 [autoload]
 
 CoinPool="*res://scripts/economy/coin_pool.gd"
-_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 EventBus="*res://scripts/autoload/event_bus.gd"
 Wallet="*res://scripts/autoload/wallet.gd"
 SaveGame="*res://scripts/autoload/save_game.gd"
 GameSettings="*res://scripts/autoload/game_settings.gd"
 GameFlow="*res://scripts/autoload/game_flow.gd"
+_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 [display]
 

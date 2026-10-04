@@ -37,8 +37,8 @@ signal wallet_changed(total: int, delta: int)
 # ---- 商店 / 锻造 ----------------------------------------------------------
 ## 玩家拿取了货架上的锻造物品。
 signal forge_item_grabbed(item: Node3D)
-## 锻造物品被插入店长体内。
-signal forge_item_inserted(item: Node3D)
+## 强化商品已放到忏悔室前的小台子上。
+signal forge_item_placed(item: Node3D)
 ## 玩家左键砍中了店长（触发锻造流程）。
 signal shopkeeper_struck(by: Node3D)
 ## 店长开始锻造（表现层可用：店长抽搐、光效等）。

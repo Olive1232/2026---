@@ -75,6 +75,8 @@ signal view_changed
 @export var damage_tags: PackedStringArray = PackedStringArray(["physical"])
 ## 这把剑能破除的障碍标签。障碍的 required_break_tag 在此列表内才可破坏。
 @export var break_tags: PackedStringArray = PackedStringArray()
+## 已获得的能力升级。油只提供可点燃能力，不直接添加 fire 伤害。
+@export var upgrade_tags: PackedStringArray = PackedStringArray()
 
 @export_group("表现")
 ## 第一人称手部模型。留空则用场景里的占位方块（见 scenes/player/player.tscn 的 Mount/Pivot/Mesh）。

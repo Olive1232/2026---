@@ -1,6 +1,6 @@
 extends Node3D
 
-## 初始清扫赚金币 → 商店买油 → 点剑烧路 → 后方清扫献祭。
+## 一条可玩的验证流程：涂油 → 点剑 → 烧路 → 战斗 → 搬运 → 献祭。
 var _gate_remaining := 0
 var _kills := 0
 var _offered := false
@@ -11,7 +11,6 @@ var _ever_ignited := false
 @onready var _sword: Sword = $Player/Camera3D/WeaponRig/WeaponPivot/Mount
 @onready var _objective: Label = $HUD/Objective
 @onready var _hint: Label = $HUD/Hint
-@onready var _shop: Node3D = $ShopRoom
 
 
 func _ready() -> void:
@@ -37,13 +36,12 @@ func _on_gate_part_removed() -> void:
 
 
 func _on_enemy_died(enemy: Node3D) -> void:
-	if is_gate_open() and is_ancestor_of(enemy):
+	if is_ancestor_of(enemy):
 		_kills += 1
 
 
 func _on_corpse_offered(_corpse: Node3D, _value: int) -> void:
-	if is_gate_open():
-		_offered = true
+	_offered = true
 
 
 func _on_coin_collected(_value: int) -> void:
@@ -53,8 +51,22 @@ func _on_coin_collected(_value: int) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.physical_keycode == KEY_R or event.keycode == KEY_R:
+		if event.physical_keycode == KEY_E or event.keycode == KEY_E:
+			var station := _aimed_oil_station()
+			if station != null:
+				station.apply_to(_sword)
+		elif event.physical_keycode == KEY_R or event.keycode == KEY_R:
 			get_tree().reload_current_scene()
+
+
+func _aimed_oil_station() -> Node3D:
+	var camera: Camera3D = _player.get_node("Camera3D")
+	var from := camera.global_position
+	var ray := PhysicsRayQueryParameters3D.create(from, from - camera.global_basis.z * 3.2, CollisionLayers.WORLD)
+	ray.exclude = [_player.get_rid()]
+	var hit := get_world_3d().direct_space_state.intersect_ray(ray)
+	var collider: Node3D = hit.get("collider") as Node3D
+	return collider if collider != null and collider.has_method("apply_to") else null
 
 
 func _process(_delta: float) -> void:
@@ -62,12 +74,7 @@ func _process(_delta: float) -> void:
 
 
 func _update_hud() -> void:
-	var price: int = _shop.shelf.item_data.price
-	var task := "进入左侧初始清扫区，杀鼠并把尸体带到中央洞献祭，攒 %d 金币买油。" % price
-	if Wallet.can_afford(price):
-		task = "金币已够，进入右侧商店，右键拿油并放到忏悔室前的小台子。"
-	if _shop.counter.item != null:
-		task = "商品已在台面，左键挥剑命中店长进行强化。"
+	var task := "瞄准入口涂油台，按 E 为剑涂油。"
 	if _reward_received:
 		task = "流程完成！继续战斗献祭，或按 Esc 手动存档。"
 	elif _offered:
@@ -80,19 +87,15 @@ func _update_hud() -> void:
 		task = "用燃烧的剑接触或挥砍门口藤蔓，等待烧开通路。" if _sword.is_burning() else "火焰已熄灭，回火把重新点燃，再烧开藤蔓。"
 	elif _sword.oiled:
 		task = "走到火把旁，让剑身接触火焰。"
-	if _shop.busy:
-		task = "店长正在强化；完成交剑时扣款。"
-	_objective.text = "清扫与商店\n" + task
+	_objective.text = "元素测试房间\n" + task
 	var state := "未涂油"
 	if _sword.is_burning():
 		state = "燃烧中 · 剩余 %d 次挥砍" % _sword.fire_swings_remaining
 	elif _sword.oiled:
 		state = "已涂油 · 可接触火把重新点燃"
 	_hint.text = "剑：%s\nWASD 移动 · 空格跳跃 · 左键挥剑 · 右键点按拿起/放下 · Esc 菜单 · R 重置房间" % state
-	var prompt: String = _shop.get_prompt()
-	$HUD/ShopMessage.text = _shop.get_status_message()
-	if not prompt.is_empty():
-		$HUD/ShopMessage.text += "\n" + prompt
+	if _aimed_oil_station() != null:
+		_hint.text += "\n[E] 免费测试涂油"
 
 
 func is_gate_open() -> bool:
