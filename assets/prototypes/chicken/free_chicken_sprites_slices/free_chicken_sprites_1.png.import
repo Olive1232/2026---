@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bvsa3bl1aogb6"
-path.s3tc="res://.godot/imported/Free_Chicken_Sprites_1.png-d05864a9475321ec956d495c9bfb893d.s3tc.ctex"
+path.s3tc="res://.godot/imported/free_chicken_sprites_1.png-a46024604e704cd4a73b38ab2763eb52.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://Assets/Player/Free_Chicken_Sprites_slices/Free_Chicken_Sprites_1.png"
-dest_files=["res://.godot/imported/Free_Chicken_Sprites_1.png-d05864a9475321ec956d495c9bfb893d.s3tc.ctex"]
+source_file="res://assets/prototypes/chicken/free_chicken_sprites_slices/free_chicken_sprites_1.png"
+dest_files=["res://.godot/imported/free_chicken_sprites_1.png-a46024604e704cd4a73b38ab2763eb52.s3tc.ctex"]
 
 [params]
 

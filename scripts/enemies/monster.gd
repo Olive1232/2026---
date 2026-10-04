@@ -17,7 +17,9 @@ extends CharacterBody3D
 ## 随机游走状态。
 enum WanderState { IDLE, WALK }
 
-const CORPSE_SCENE := preload("res://Scenes/Enemies/Corpse.tscn")
+const CORPSE_SCENE := preload("res://scenes/enemies/corpse.tscn")
+## 水平击退每秒衰减的速度（米/秒²）。
+const KNOCKBACK_DECELERATION := 12.0
 
 var health: float = 0.0
 var _state: WanderState = WanderState.IDLE
@@ -27,6 +29,8 @@ var _direction: Vector3 = Vector3.ZERO
 var _rng := RandomNumberGenerator.new()
 var _material: StandardMaterial3D
 var _dead: bool = false
+## 与自主游走分开保存，避免僵直或下一帧游走覆盖受击冲量。
+var _knockback_velocity: Vector3 = Vector3.ZERO
 
 @onready var _mesh: MeshInstance3D = $Mesh
 @onready var _shape: CollisionShape3D = $Shape
@@ -54,6 +58,7 @@ func _apply_visual() -> void:
 	_material.albedo_color = data.body_color
 	box.material = _material
 	_mesh.mesh = box
+	_mesh.material_override = _material
 	# 网格抬高到半身高，让底面贴地。
 	_mesh.position = Vector3(0, data.body_size.y * 0.5, 0)
 	if _shape != null:
@@ -67,31 +72,27 @@ func _physics_process(delta: float) -> void:
 	if _dead:
 		return
 
-	# 受击僵直：不动，但也不掉血以外的任何事。
+	# 僵直只暂停自主游走；击退、重力与碰撞仍由物理帧处理。
+	var walk_velocity := Vector3.ZERO
 	if _stun_timer > 0.0:
-		_stun_timer -= delta
-		velocity = Vector3.ZERO
-		move_and_slide()
-		return
-
-	_state_timer -= delta
-	if _state_timer <= 0.0:
-		_pick_new_state()
-
-	if _state == WanderState.WALK:
-		velocity.x = _direction.x * data.move_speed
-		velocity.z = _direction.z * data.move_speed
+		_stun_timer = maxf(0.0, _stun_timer - delta)
 	else:
-		velocity.x = move_toward(velocity.x, 0.0, data.move_speed * 4.0)
-		velocity.z = move_toward(velocity.z, 0.0, data.move_speed * 4.0)
+		_state_timer -= delta
+		if _state_timer <= 0.0:
+			_pick_new_state()
+		if _state == WanderState.WALK:
+			walk_velocity = _direction * data.move_speed
+	velocity.x = walk_velocity.x + _knockback_velocity.x
+	velocity.z = walk_velocity.z + _knockback_velocity.z
 
 	# 重力（不设计跳跃，但需要贴地）。
-	if not is_on_floor():
+	if not is_on_floor() or velocity.y > 0.0:
 		velocity.y -= float(ProjectSettings.get_setting("physics/3d/default_gravity")) * delta
 	else:
 		velocity.y = 0.0
 
 	move_and_slide()
+	_knockback_velocity = _knockback_velocity.move_toward(Vector3.ZERO, KNOCKBACK_DECELERATION * delta)
 	_handle_wall_contact()
 
 
@@ -143,8 +144,10 @@ func take_hit(info: HitInfo) -> void:
 	health -= info.damage
 	_flash()
 	_stun_timer = data.hit_stun
-	# 被击退：直接改速度，让它滑出去一点。
-	velocity += info.knockback * 0.4
+	# 水平冲量独立保留并衰减；竖直冲量继续由重力和碰撞处理。
+	var impulse := info.knockback * 0.4
+	_knockback_velocity += Vector3(impulse.x, 0.0, impulse.z)
+	velocity += impulse
 	if health <= 0.0:
 		_die()
 

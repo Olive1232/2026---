@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cmoneyui00001"]
 
-[ext_resource type="Script" path="res://Scripts/UI/MoneyUI.gd" id="1_moneyui"]
+[ext_resource type="Script" path="res://scripts/ui/money_ui.gd" id="1_moneyui"]
 
 [sub_resource type="StyleBoxFlat" id="Style_panel"]
 content_margin_left = 10.0

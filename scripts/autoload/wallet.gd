@@ -2,13 +2,13 @@ extends Node
 
 ## 钱包（autoload 名：Wallet）——玩家持有的金钱。
 ##
-## 已拍板的决定：**是 roguelite，不是 incremental**。
-## 所以这里是**一个 int**，不做大数运算、不做挂机产出、不按品质分档存储。
+## 当前路线：增量外壳 + 战斗内核，不做挂机产出或大数运算。
+## 钱包仍是一个 int，由 SaveGame 手动保存、GameFlow 新建或载入。
 ## 钱币的"品质"只是外观不同，价值统一累加到这个总数里。
 ##
 ## 全局变化通过 EventBus.wallet_changed(total, delta) 广播，UI 订阅那一个信号即可。
 
-## 当前金钱。禁止外部直接写，一律走 add / spend。
+## 当前金钱。禁止外部直接写，一律走 add / spend / set_total。
 var total: int = 0
 
 
@@ -40,8 +40,13 @@ func can_afford(amount: int) -> bool:
 	return total >= amount
 
 
-## 清空（重开一局用）。
+## 替换钱包总额（新建 / 载入），同步通知 HUD。
+func set_total(amount: int) -> void:
+	var previous := total
+	total = maxi(0, amount)
+	EventBus.wallet_changed.emit(total, total - previous)
+
+
+## 清空（新建游戏或调试用，不删除磁盘存档）。
 func reset() -> void:
-	var delta := -total
-	total = 0
-	EventBus.wallet_changed.emit(total, delta)
+	set_total(0)

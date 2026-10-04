@@ -60,7 +60,7 @@ func _ready() -> void:
 	_rng.randomize()
 	if offering_table == null:
 		offering_table = _default_table()
-	# 碰撞层/掩码已在 Hole.tscn 里设好，这里只做一件事：
+	# 碰撞层/掩码已在 hole.tscn 里设好，这里只做一件事：
 	# 接上「物品进入吞噬区」的信号。
 	# 注意：不要在这里写 collision_mask——那会覆盖场景里的配置，
 	# 早期版本就因为这里写错值导致尸体探测不到。

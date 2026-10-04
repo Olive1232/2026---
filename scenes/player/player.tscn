@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://b1nf44seup0a5"]
 
-[ext_resource type="Script" uid="uid://cmwcekupfobxd" path="res://Scripts/Player/player.gd" id="1_s0eop"]
-[ext_resource type="Script" uid="uid://biql2e566gdbh" path="res://Scripts/Weapons/Sword.gd" id="2_sword"]
-[ext_resource type="Script" uid="uid://wdn5mc6idjps" path="res://Scripts/Interact/Grabber.gd" id="3_h54ih"]
+[ext_resource type="Script" uid="uid://cmwcekupfobxd" path="res://scripts/player/player.gd" id="1_s0eop"]
+[ext_resource type="Script" uid="uid://biql2e566gdbh" path="res://scripts/weapons/sword.gd" id="2_sword"]
+[ext_resource type="Script" uid="uid://wdn5mc6idjps" path="res://scripts/interact/grabber.gd" id="3_h54ih"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_hit"]
 size = Vector3(1.4, 1, 2.4)

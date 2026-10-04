@@ -125,10 +125,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			try_grab()
 
 
-func _physics_process(_delta: float) -> void:
-	# 持有中的物体如果被释放/销毁了，清掉引用。
-	if _current != null and not is_instance_valid(_current):
-		_clear_current()
+func _on_held_tree_exiting() -> void:
+	# 在引用被引擎清为 null 之前处理献祭 / 销毁，负重不能残留。
+	_clear_current()
 
 
 # ---- 抓 / 放 -------------------------------------------------------------
@@ -146,6 +145,7 @@ func try_grab() -> bool:
 	if target.has_method("can_be_grabbed") and not target.can_be_grabbed():
 		return false
 	_current = target
+	_current.tree_exiting.connect(_on_held_tree_exiting)
 	target.grab(_player, _hold_point)
 	_apply_weight()
 	return true
@@ -170,6 +170,8 @@ func get_held() -> Node3D:
 
 
 func _clear_current() -> void:
+	if is_instance_valid(_current) and _current.tree_exiting.is_connected(_on_held_tree_exiting):
+		_current.tree_exiting.disconnect(_on_held_tree_exiting)
 	_current = null
 	_apply_weight()
 

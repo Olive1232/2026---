@@ -5,7 +5,7 @@ extends StaticBody3D
 ##
 ## 它故意只实现 `take_hit(HitInfo)` 这一个约定方法——
 ## 将来的真敌人在接口上长得一样，剑不需要区分"砍的是靶子还是生物"。
-## 这是 Sword.gd 里用 has_method("take_hit") 做鸭子类型判断的原因。
+## 这是 sword.gd 里用 has_method("take_hit") 做鸭子类型判断的原因。
 
 signal died
 

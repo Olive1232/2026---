@@ -35,20 +35,24 @@ var _look_delta: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	GameSettings.changed.connect(_apply_settings)
+	_apply_settings()
+
+
+func _apply_settings() -> void:
+	mouse_sensitivity = GameSettings.mouse_sensitivity
+	reset_look_input()
+
+
+func reset_look_input() -> void:
+	_look_delta = Vector2.ZERO
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# 释放/重新捕获鼠标，方便在编辑器里切出来。
-	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-		return
-	if event is InputEventMouseButton and event.pressed and Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE:
-		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-		return
-
 	# 只累积，不直接转（见 _look_delta 的说明）。
 	if event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
-		_look_delta += event.relative
+		# 屏幕原始位移不随窗口 / UI 缩放，避免切全屏后灵敏度变化。
+		_look_delta += event.screen_relative
 
 
 func _process(_delta: float) -> void:

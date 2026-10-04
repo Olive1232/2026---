@@ -13,7 +13,7 @@ extends RefCounted
 ##   位 5 (值 16)  WEAPON   剑的伤害区域（Area3D 用）
 ##
 ## 注意：剑的 Area3D 自己不监听任何层（mask 为 0），命中检测由
-## Sword.gd 主动轮询 get_overlapping_bodies() 完成，避免 body_entered
+## sword.gd 主动轮询 get_overlapping_bodies() 完成，避免 body_entered
 ## 信号在高速挥砍时漏触发。
 
 const WORLD := 1 << 0

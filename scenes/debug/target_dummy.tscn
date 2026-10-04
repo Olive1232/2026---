@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bqdummytarget01"]
 
-[ext_resource type="Script" path="res://Scripts/Debug/TargetDummy.gd" id="1_dummy"]
+[ext_resource type="Script" path="res://scripts/debug/target_dummy.gd" id="1_dummy"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
 radius = 0.4

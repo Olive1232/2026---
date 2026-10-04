@@ -1,11 +1,13 @@
 [gd_scene format=3 uid="uid://dnl54b30dp55n"]
 
-[ext_resource type="Script" uid="uid://b86kn5l1hxtqn" path="res://Scripts/Debug/TestArena.gd" id="1_arena"]
-[ext_resource type="PackedScene" uid="uid://b1nf44seup0a5" path="res://Scenes/Player/Player.tscn" id="2_player"]
-[ext_resource type="PackedScene" uid="uid://da4pfytwxfqlk" path="res://Scenes/Debug/TargetDummy.tscn" id="3_dummy"]
-[ext_resource type="PackedScene" uid="uid://cmoneyui00001" path="res://Scenes/UI/MoneyUI.tscn" id="4_moneyui"]
-[ext_resource type="PackedScene" uid="uid://chole00000001" path="res://Scenes/Hole/Hole.tscn" id="5_hole"]
-[ext_resource type="PackedScene" path="res://Scenes/UI/Crosshair.tscn" id="6_7usnj"]
+[ext_resource type="Script" uid="uid://b86kn5l1hxtqn" path="res://scripts/debug/test_arena.gd" id="1_arena"]
+[ext_resource type="PackedScene" uid="uid://b1nf44seup0a5" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" uid="uid://da4pfytwxfqlk" path="res://scenes/debug/target_dummy.tscn" id="3_dummy"]
+[ext_resource type="PackedScene" uid="uid://cmoneyui00001" path="res://scenes/ui/money_ui.tscn" id="4_moneyui"]
+[ext_resource type="PackedScene" uid="uid://chole00000001" path="res://scenes/economy/hole.tscn" id="5_hole"]
+[ext_resource type="PackedScene" path="res://scenes/ui/crosshair.tscn" id="6_7usnj"]
+[ext_resource type="PackedScene" uid="uid://bd2b8m71ej6u5" path="res://scenes/enemies/monster_spawner.tscn" id="7_spawner"]
+[ext_resource type="Resource" uid="uid://6g0i0fluavl3" path="res://resources/enemies/monster_rat.tres" id="8_rat"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_iass2"]
 size = Vector3(19.4, 1, 19.4)
@@ -133,6 +135,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
 
 [node name="Dummy3" parent="." unique_id=256934416 instance=ExtResource("3_dummy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -8)
+
+[node name="CockroachSpawner" parent="." unique_id=1121711290 instance=ExtResource("7_spawner")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -4)
+max_alive = 3
+spawn_interval = 4.0
+
+[node name="RatSpawner" parent="." unique_id=1475875540 instance=ExtResource("7_spawner")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -4)
+monster_data = ExtResource("8_rat")
+max_alive = 2
+spawn_interval = 6.0
 
 [node name="Sun" type="DirectionalLight3D" parent="." unique_id=705946986]
 transform = Transform3D(0.90630776, 0.3237444, -0.2716538, 0, 0.64278764, 0.76604444, 0.42261827, -0.69427204, 0.5825634, 0, 0, 0)

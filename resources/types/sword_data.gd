@@ -77,7 +77,7 @@ signal view_changed
 @export var break_tags: PackedStringArray = PackedStringArray()
 
 @export_group("表现")
-## 第一人称手部模型。留空则用场景里的占位方块（见 Scenes/Player/Player.tscn 的 Mount/Pivot/Mesh）。
+## 第一人称手部模型。留空则用场景里的占位方块（见 scenes/player/player.tscn 的 Mount/Pivot/Mesh）。
 @export var swing_mesh: Mesh = null
 ## 模型相对**挂点**的位置偏移。位置 = 场景挂点 + 本偏移。
 ## 调剑在画面里的构图只用改这里，不用进场景改 Transform。

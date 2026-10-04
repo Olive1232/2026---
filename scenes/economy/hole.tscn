@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://chole00000001"]
 
-[ext_resource type="Script" path="res://Scripts/Economy/Hole.gd" id="1_hole"]
+[ext_resource type="Script" path="res://scripts/economy/hole.gd" id="1_hole"]
 
 [sub_resource type="CylinderMesh" id="Cyl_rim"]
 top_radius = 1.5

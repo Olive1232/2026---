@@ -16,7 +16,7 @@ extends Node3D
 ## 当前这把剑的数据。可在编辑器里直接赋值换剑。
 ## 默认指向初始之剑；若被清空，_ensure_data() 会兜底生成一份默认数据，
 ## 保证剑永远可用（不因为漏配资源就变成"按左键没反应"）。
-@export var data: SwordData = preload("res://Resources/Swords/sword_starter.tres")
+@export var data: SwordData = preload("res://resources/swords/sword_starter.tres")
 
 ## 自动挥砍（用于编辑器里预览手感，跑起来会自动停）。
 @export var auto_swing_in_editor: bool = false
@@ -47,6 +47,7 @@ var _connected: bool = false
 # 只继承水平横扫。这样剑怎么摆姿势都不影响判定范围。
 @onready var _yaw_node: Node3D = $Pivot
 @onready var _mesh: MeshInstance3D = $Pivot/Mesh
+@onready var _hit_anchor: Node3D = $"../HitAnchor"
 @onready var _hit_rig: Node3D = $"../HitAnchor/HitRig"
 @onready var _hitbox: Area3D = $"../HitAnchor/HitRig/Hitbox"
 @onready var _hit_shape: CollisionShape3D = $"../HitAnchor/HitRig/Hitbox/Shape"
@@ -138,6 +139,11 @@ func _process(delta: float) -> void:
 		_drive_animation(0.0)
 
 
+func _physics_process(_delta: float) -> void:
+	if _state == State.ACTIVE:
+		_poll_hits()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	# 只在游戏里响应，编辑器里不抢输入。
 	if Engine.is_editor_hint():
@@ -161,7 +167,6 @@ func _tick(delta: float) -> void:
 			# 判定期间持续扫过，动画在前摇基础上继续往收势角走。
 			var p2 := _phase_ratio(_t, data.active_time)
 			_drive_animation_swing(p2)
-			_poll_hits()
 			if _t >= data.active_time:
 				_state = State.RECOVERY
 				_t = 0.0
@@ -257,10 +262,13 @@ func _apply_pose(yaw_deg: float, pitch_deg: float) -> void:
 	#   self.rotation.z      = 自转（roll，刃朝哪边）
 	if _yaw_node != null:
 		_yaw_node.rotation.y = deg_to_rad(yaw_deg)
+	# 单独同步锚点，不转 WeaponPivot，否则模型会叠加两次 yaw。
+	if _hit_anchor != null:
+		_hit_anchor.rotation.y = deg_to_rad(yaw_deg)
 	rotation.x = deg_to_rad(pitch_deg)
 	rotation.z = deg_to_rad(data.rest_roll)
-	# 伤害区域由 HitAnchor 继承 WeaponPivot 的 yaw，自己只加一个固定下倾角。
-	# 它不继承剑的俯仰/自转/位置，所以剑的姿态纯属表现，不影响判定。
+	# 伤害区域继承 HitAnchor 的横扫，只额外加固定下倾角。
+	# 剑的俯仰、自转、构图位置仍不影响判定范围。
 	if _hit_rig != null:
 		_hit_rig.rotation.x = deg_to_rad(HITBOX_LEVEL_PITCH)
 

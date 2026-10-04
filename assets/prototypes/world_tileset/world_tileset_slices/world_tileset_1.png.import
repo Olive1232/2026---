@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dfmm58v2htk7c"
-path.s3tc="res://.godot/imported/world_tileset_1.png-5980895721ff2b7e14c32f2bed418b6f.s3tc.ctex"
+path.s3tc="res://.godot/imported/world_tileset_1.png-4d9fb83a992ea714cf906b2f29bb2b03.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://Assets/TileTexture/Temp/world_tileset_slices/world_tileset_1.png"
-dest_files=["res://.godot/imported/world_tileset_1.png-5980895721ff2b7e14c32f2bed418b6f.s3tc.ctex"]
+source_file="res://assets/prototypes/world_tileset/world_tileset_slices/world_tileset_1.png"
+dest_files=["res://.godot/imported/world_tileset_1.png-4d9fb83a992ea714cf906b2f29bb2b03.s3tc.ctex"]
 
 [params]
 

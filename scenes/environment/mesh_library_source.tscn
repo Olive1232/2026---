@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dp3x3mvc66a7e"]
 
-[ext_resource type="Texture2D" uid="uid://dfmm58v2htk7c" path="res://Assets/TileTexture/Temp/world_tileset_slices/world_tileset_1.png" id="1_dgryk"]
-[ext_resource type="Texture2D" uid="uid://b0a0i7jwph77d" path="res://Assets/TileTexture/Temp/world_tileset_slices/world_tileset_24.png" id="2_1dqqs"]
+[ext_resource type="Texture2D" uid="uid://dfmm58v2htk7c" path="res://assets/prototypes/world_tileset/world_tileset_slices/world_tileset_1.png" id="1_dgryk"]
+[ext_resource type="Texture2D" uid="uid://b0a0i7jwph77d" path="res://assets/prototypes/world_tileset/world_tileset_slices/world_tileset_24.png" id="2_1dqqs"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x60wa"]
 albedo_texture = ExtResource("1_dgryk")

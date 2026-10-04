@@ -1,6 +1,8 @@
 class_name EnemyData
 extends Resource
 
+## 历史追击 / 攻击方案，仅保留供参考；现有怪物不使用此资源。
+## 现行配置类型为 resources/types/monster_data.gd 中的 MonsterData。
 ## 一种生物的全部数值。策划在这里调参即可加新敌种。
 
 @export var id: StringName = &""

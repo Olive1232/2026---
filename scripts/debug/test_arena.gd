@@ -10,10 +10,10 @@ extends Node3D
 ##   3  加 100 元        4  钱包清零
 ##   5  生成蟑螂          6  生成老鼠
 
-const DUMMY_SCENE := preload("res://Scenes/Debug/TargetDummy.tscn")
-const MONSTER_SCENE := preload("res://Scenes/Enemies/Monster.tscn")
-const COCKROACH_DATA := preload("res://Resources/Enemies/monster_cockroach.tres")
-const RAT_DATA := preload("res://Resources/Enemies/monster_rat.tres")
+const DUMMY_SCENE := preload("res://scenes/debug/target_dummy.tscn")
+const MONSTER_SCENE := preload("res://scenes/enemies/monster.tscn")
+const COCKROACH_DATA := preload("res://resources/enemies/monster_cockroach.tres")
+const RAT_DATA := preload("res://resources/enemies/monster_rat.tres")
 
 ## 生成新靶子时距玩家的距离。
 @export var spawn_distance: float = 6.0
@@ -30,6 +30,12 @@ var _last_action: String = "（无）"
 
 func _ready() -> void:
 	_label = get_node_or_null("HUD/Info") as Label
+	EventBus.enemy_spawned.connect(_on_enemy_spawned)
+	_update_label()
+
+
+func _on_enemy_spawned(_enemy: Node3D) -> void:
+	_monster_count += 1
 	_update_label()
 
 
@@ -105,13 +111,11 @@ func _spawn_monster_ahead(data: MonsterData) -> void:
 	monster.global_position = player.global_position + forward * monster_spawn_distance
 	# 生成点贴地，避免从半空落下。
 	monster.global_position.y = 0.05
-	_monster_count += 1
 	_last_action = "生成 %s" % data.display_name
 	EventBus.enemy_spawned.emit(monster)
-	_update_label()
 
 
 func _update_label() -> void:
 	if _label == null:
 		return
-	_label.text = "测试场地（剑 + 钱包 + 怪物/尸体）\nR 重载   T 生成靶子   F1 隐藏本提示\n左键挥砍 · 右键抓取/放下 · WASD 移动 · 空格跳跃 · Esc 释放鼠标\n已生成靶子：%d   已生成怪物：%d\n钱包调试：[1] +5  [2] 花3  [3] +100  [4] 清零\n怪物调试：[5] 蟑螂  [6] 老鼠\n上次操作：%s" % [_spawn_count, _monster_count, _last_action]
+	_label.text = "测试场地（剑 + 钱包 + 怪物/尸体）\nR 重载   T 生成靶子   F1 隐藏本提示\n左键挥砍 · 右键抓取/放下 · WASD 移动 · 空格跳跃 · Esc 暂停菜单\n已生成靶子：%d   已生成怪物：%d\n自动刷新：蟑螂最多3只 / 每4秒 · 老鼠最多2只 / 每6秒\n钱包调试：[1] +5  [2] 花3  [3] +100  [4] 清零\n怪物调试：[5] 蟑螂  [6] 老鼠\n上次操作：%s" % [_spawn_count, _monster_count, _last_action]
