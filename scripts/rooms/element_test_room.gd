@@ -1,6 +1,9 @@
 extends Node3D
 
 ## 初始清扫赚金币 → 商店买油 → 点剑烧路 → 后方清扫献祭。
+@export var room_title := "清扫与商店"
+@export var initial_task := "进入左侧初始清扫区，杀鼠并把尸体带到中央洞献祭，攒 %d 金币买油。"
+@export var purchase_task := "金币已够，进入右侧商店，右键拿油并放到忏悔室前的小台子。"
 var _gate_remaining := 0
 var _kills := 0
 var _offered := false
@@ -63,9 +66,9 @@ func _process(_delta: float) -> void:
 
 func _update_hud() -> void:
 	var price: int = _shop.shelf.item_data.price
-	var task := "进入左侧初始清扫区，杀鼠并把尸体带到中央洞献祭，攒 %d 金币买油。" % price
+	var task := initial_task % price
 	if Wallet.can_afford(price):
-		task = "金币已够，进入右侧商店，右键拿油并放到忏悔室前的小台子。"
+		task = purchase_task
 	if _shop.counter.item != null:
 		task = "商品已在台面，左键挥剑命中店长进行强化。"
 	if _reward_received:
@@ -82,7 +85,7 @@ func _update_hud() -> void:
 		task = "走到火把旁，让剑身接触火焰。"
 	if _shop.busy:
 		task = "店长正在强化；完成交剑时扣款。"
-	_objective.text = "清扫与商店\n" + task
+	_objective.text = room_title + "\n" + task
 	var state := "未涂油"
 	if _sword.is_burning():
 		state = "燃烧中 · 剩余 %d 次挥砍" % _sword.fire_swings_remaining

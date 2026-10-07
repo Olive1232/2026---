@@ -203,7 +203,7 @@ func _run() -> void:
 		Input.parse_input_event(motion)
 		Input.flush_buffered_events()
 	await _frames()
-	_check(is_equal_approx(player.rotation.y - pose.y, deg_to_rad(-5.0)), "sensitivity affects actual mouse look")
+	_check(is_equal_approx(angle_difference(pose.y, player.rotation.y), deg_to_rad(-5.0)), "sensitivity affects actual mouse look")
 	player._look_delta = Vector2(100, 100)
 	await _key(KEY_ESCAPE)
 	_check(paused and Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE, "escape pauses and releases mouse")

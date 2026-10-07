@@ -24,14 +24,14 @@ func _collect(path: String) -> void:
 
 func _run() -> void:
 	await process_frame
-	for branch in ["scripts", "scenes", "resources", "assets", "tests"]:
+	for branch in ["scripts", "scenes", "resources", "assets", "shaders", "tests"]:
 		_collect("res://" + branch)
 	var exact_paths := {}
 	for path in _paths:
 		exact_paths[path] = true
 	for path in _paths:
 		var extension := path.get_extension()
-		if extension in ["gd", "tscn", "tres", "meshlib", "png"]:
+		if extension in ["gd", "tscn", "tres", "res", "gdshader", "meshlib", "png"]:
 			var resource := load(path)
 			_check(resource != null, "load " + path)
 			if resource is PackedScene:

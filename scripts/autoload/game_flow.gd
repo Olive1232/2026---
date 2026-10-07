@@ -1,7 +1,8 @@
 extends Node
 
 const MAIN_MENU := "res://scenes/ui/main_menu.tscn"
-const GAME_SCENE := "res://scenes/rooms/element_test_room.tscn"
+const GAME_SCENE := "res://scenes/rooms/map_world.tscn"
+const SHOP_LAB := "res://scenes/rooms/element_test_room.tscn"
 const DEBUG_SCENE := "res://scenes/debug/test_arena.tscn"
 const ELEMENT_LAB := "res://scenes/debug/element_lab.tscn"
 var _pause_menu: CanvasLayer
@@ -32,7 +33,7 @@ func _input(event: InputEvent) -> void:
 
 func is_in_game() -> bool:
 	var scene := get_tree().current_scene
-	return scene != null and scene.scene_file_path in [GAME_SCENE, DEBUG_SCENE, ELEMENT_LAB]
+	return scene != null and scene.scene_file_path in [GAME_SCENE, DEBUG_SCENE, ELEMENT_LAB, SHOP_LAB]
 
 
 func start_new_game() -> Dictionary:

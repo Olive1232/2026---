@@ -45,6 +45,10 @@ const PLAYER_FALL_HEIGHT := 0.35
 ## 是否把调试状态打到控制台。
 @export var debug_print: bool = false
 
+## 关卡可按实际模型口径适配；旧场景保持原默认值与高度规则。
+@export_range(0.1, 10.0, 0.1) var swallow_radius: float = SWALLOW_RADIUS
+@export_range(0.1, 10.0, 0.1) var player_fall_radius: float = PLAYER_FALL_RADIUS
+
 ## 待结算的投入价值（已累加，尚未喷发）。
 var pending_value: int = 0
 ## 距离结算还剩多少秒。<=0 表示没有待结算内容。
@@ -175,7 +179,7 @@ func _swallow_items() -> void:
 			continue
 		var d := body.global_position - global_position
 		var horizontal := Vector2(d.x, d.z).length()
-		if horizontal <= SWALLOW_RADIUS and d.y <= SWALLOW_MAX_HEIGHT:
+		if horizontal <= swallow_radius and d.y <= SWALLOW_MAX_HEIGHT:
 			var value := _item_value(body)
 			if value > 0:
 				_consume(body, value)
@@ -194,7 +198,7 @@ func _check_player_fall() -> void:
 	var d := _player.global_position - global_position
 	# 水平距离够近，且已经陷进洞口平面以下。
 	var horizontal := Vector2(d.x, d.z).length()
-	if horizontal <= PLAYER_FALL_RADIUS and d.y <= PLAYER_FALL_HEIGHT:
+	if horizontal <= player_fall_radius and d.y <= PLAYER_FALL_HEIGHT:
 		_eject_player(_player)
 
 
@@ -278,6 +282,10 @@ func _consume(body: Node, value: int) -> void:
 
 
 func _destroy(body: Node) -> void:
+	# 商品不献祭；由自己的返回接口处理引用、负重和货架位置。
+	if body is ShopItem:
+		body.call_deferred("return_home")
+		return
 	if body is Corpse:
 		EventBus.corpse_offered.emit(body, _item_value(body))
 	if body is Node3D:
